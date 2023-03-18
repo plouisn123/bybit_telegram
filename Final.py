@@ -148,11 +148,11 @@ while True:
                     nb_decimals = decimals.count("0")
                     ticker = exchange.fetch_ticker(symbol)
                     last_price = ticker['last']
-                    quantity = round(1*levier/last_price,nb_decimals)
+                    quantity = round(2*levier/last_price,nb_decimals)
                     if quantity == 0:
                         quantity = 1/10**nb_decimals
                 else:
-                    quantity = round(1*levier/last_price)
+                    quantity = round(2*levier/last_price)
                 print('Quantity',quantity)
                 
                 #ordres
