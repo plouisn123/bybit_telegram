@@ -24,10 +24,8 @@ while True:
         #Extraction et traitement des données
         text = message
         
-        print(text)
-        
         if "TP :" in text and "SL :" in text and "Prix" in text:
-            
+ 
             #LONG or SHORT
             start = text.find("(")
             end = text.find(")", start)
