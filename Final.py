@@ -17,8 +17,8 @@ while True:
     response = requests.get(f"https://api.telegram.org/bot5704355843:AAHk0C4706h3Kn3X8KvF0ZQah-DmkqSB6o4/getUpdates?offset={last_update_id+1}&allowed_updates=[\"channel_post\"]").json()
     updates = response["result"]
     for update in updates:
-        message = update["channel_post"]["text"]
         #message = update["channel_post"]["text"]
+        message = updates[-1]["channel_post"]["text"]
         last_update_id = update["update_id"] 
         
         #Extraction et traitement des données
