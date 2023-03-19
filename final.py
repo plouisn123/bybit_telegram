@@ -1,6 +1,5 @@
 import requests
 import ccxt
-import time
 
 exchange = ccxt.bybit({
     'apiKey': '6Z1bOetRqDSjvKUI5G',
@@ -160,13 +159,4 @@ while True:
                     exchange.create_limit_order(symbol=symbol, side=close, amount=quantity, price=SL, params={'stopLossPrice': SL}) #SL close long
                 else:
                     exchange.create_limit_buy_order(symbol=symbol, amount=quantity, price=SL, params = {'stopPrice': SL}) #SL 
-
-                time.sleep(5)
-    
-
-
- 
-
-
-        
-            
+          
