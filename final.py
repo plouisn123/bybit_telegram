@@ -2,8 +2,8 @@ import requests
 import ccxt
 
 exchange = ccxt.bybit({
-    'apiKey': '6Z1bOetRqDSjvKUI5G',
-    'secret': 'hLWFjqtpYquGwJBmVL8Zh8NlWxbE2UjqhLbn',
+    'apiKey': 'WOulQursvU7gL5a3rC',
+    'secret': 'Ccwr5oBFJNDUO54NSDmypqn4776Tv58IorLj',
 })
 
 bot_token = '5704355843:AAHk0C4706h3Kn3X8KvF0ZQah-DmkqSB6o4'
