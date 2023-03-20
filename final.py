@@ -103,7 +103,7 @@ while True:
                 print('PE:',PE)
 
             #choix levier
-             lev_max = exchange.fetch_derivatives_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
+            lev_max = exchange.fetch_derivatives_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
             if 0.1 < last_price < 100:
                 if lev_max < 20:
                     levier = lev_max
