@@ -36,10 +36,10 @@ while True:
                 #print(type(close))
                 
             #Paire    
-            start = text.find(" ")
+            start = text[1]
             end = text.find("(", start)
             if start != -1 and end != -1:
-                crypto = text[start-3:end-1]
+                crypto = text[start:end-1]
                 symbol = crypto+'USDT'
                 print('Paire:',symbol)
                 #print(type(symbol))
