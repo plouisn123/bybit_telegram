@@ -1,16 +1,17 @@
 import requests
 import ccxt
 
+##Bybit V2 API
 exchange = ccxt.bybit({
-    'apiKey': 'WOulQursvU7gL5a3rC',
-    'secret': 'Ccwr5oBFJNDUO54NSDmypqn4776Tv58IorLj',
+    'apiKey': 'lJ0p7UGka017zuBvQP',
+    'secret': 'IgtG28HSQzSdouzBdgUuvCTjXRtdWFjl3FKK', 
 })
 
 bot_token = '5704355843:AAHk0C4706h3Kn3X8KvF0ZQah-DmkqSB6o4'
 channel_id = '@ceinturionskatana'
 
 
-#Récupère le message dans le canal télégram
+##Récupère le message dans le canal télégram
 last_update_id = 0
 while True:
     response = requests.get(f"https://api.telegram.org/bot5704355843:AAHk0C4706h3Kn3X8KvF0ZQah-DmkqSB6o4/getUpdates?offset={last_update_id+1}&allowed_updates=[\"channel_post\"]").json()
@@ -19,7 +20,7 @@ while True:
         message = updates[-1]["channel_post"]["text"]
         last_update_id = update["update_id"] 
         
-        #Extraction et traitement des données
+        ##Extraction et traitement des données
         text = message
         
         if "TP :" in text and "SL :" in text and "Prix" in text:
@@ -82,10 +83,9 @@ while True:
                 #print(type(SL))
                 
             #Prix d'entrée
-            last_price = exchange.fetch_ticker(symbol)['last']
+            last_price = exchange.fetch_ticker(symbol)['last'] # recupère le dernier prix
             nb_decimals = len(str(last_price)) - str(last_price).index('.') - 1
             index = str(last_price).find('.')
-            #print('last price: ',last_price)
             if PE1 < last_price < PE2:
                 if index == -1: #est ce que le prix de la crypto à une virgule ?
                     PE = round(last_price*1.001)
@@ -126,20 +126,21 @@ while True:
                     levier = 35
             print('Levier',levier)
 
-            #Passage des ordres
-            if symbol is not None and BorS is not None and PE is not None and close is not None and TPs[1] is not None and SL is not None and levier is not None:
-                info_leviers=exchange.fetch_positions(symbol)#récupère le gros tas d'info sur la paire
-                size = info_leviers[0]['info']['size']
+            ##Passage des ordres
+            if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPs', 'SL', 'levier']):
+                info_leviers=exchange.fetch_positions(symbol) #récupère le gros tas d'info sur la paire
+                size = info_leviers[0]['info']['size'] #taille de l'ordre long en court (recuperer nb décimals)
                 #leviers
                 if len(info_leviers) == 1:
                     levier_LS = info_leviers[0]['leverage']
                 else:
-                    levier_long = info_leviers[0]['leverage']
-                    levier_short = info_leviers[1]['leverage']
-                if levier_LS is not None:
-                    if levier != levier_LS:
-                        exchange.set_leverage(symbol=symbol, leverage=levier)
-                else:
+                    levier_long = info_leviers[0]['leverage'] 
+                    levier_short = info_leviers[1]['leverage'] 
+                try: 
+                    if levier_LS not in globals():
+                        if levier != levier_LS:
+                            exchange.set_leverage(symbol=symbol, leverage=levier)
+                except: 
                     if BorS == 'Buy':
                         if levier != levier_long:
                             exchange.set_leverage(symbol=symbol, leverage=levier)
