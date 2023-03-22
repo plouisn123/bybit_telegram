@@ -3,8 +3,8 @@ import ccxt
 
 ##Bybit V2 API
 exchange = ccxt.bybit({
-    'apiKey': 'lJ0p7UGka017zuBvQP',
-    'secret': 'IgtG28HSQzSdouzBdgUuvCTjXRtdWFjl3FKK', 
+    'apiKey': 'WOulQursvU7gL5a3rC',
+    'secret': 'Ccwr5oBFJNDUO54NSDmypqn4776Tv58IorLj', 
 })
 
 bot_token = '5704355843:AAHk0C4706h3Kn3X8KvF0ZQah-DmkqSB6o4'
