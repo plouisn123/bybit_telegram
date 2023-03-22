@@ -54,14 +54,17 @@ while True:
                 PE1 = float(PE11.replace(",", "."))
                 #print('Prix Entrée 1:',PE1)
 
-            #Prix d'entrée n°2  
+             #Prix d'entrée n°2  
             start = text.find("-")
-            end = text.find(" ", start)
-            if start != -1 and end != -1:
-                PE22 = text[start+1:end-3]
+            end = start + 2
+            while end < len(text) and (text[end].isdigit() or text[end] == ","):
+                end += 1
+            PE22 = text[start+1:end]
+            if ',' in PE22:
                 PE2 = float(PE22.replace(",", "."))
-                #print('Prix Entrée 2:',PE2)
-                #print(type(PE2))
+            else:
+                PE2 = float(PE22)
+            #print('Prix Entrée 2:',PE2)
 
             #TP n°i    
             start = text.find("TP")
@@ -69,18 +72,26 @@ while True:
             if start != -1 and end != -1:
                 TP = text[start+6:end-3]        
                 TPs = TP.split("\n")
-                TPs[2] = float(TPs[2].replace(",", "."))
+                if ',' in TP[2]:
+                    TPs[2] = float(TPs[2].replace(",", "."))
+                else:
+                    TPs[2] = float(TPs[2])
                 print('Take Profit:',TPs[2])
                 #print(type(TPs[2]))
 
             #SL    
             start = text.find("SL")
-            end = text.find("Chaque", start)
-            if start != -1 and end != -1:
-                SLL = text[start+5:end-2]
+            end = start + 6
+            while end < len(text) and (text[end].isdigit() or text[end] == ","):
+                end += 1
+            SLL = text[start+5:end]
+            print('SLL:',SLL)
+            if ',' in SLL:
                 SL = float(SLL.replace(",", "."))
-                print('StopLoss:',SL)
-                #print(type(SL))
+            else:
+                SL = float(SLL)
+            print('StopLoss:',SL)
+            #print(type(SL))
                 
             #Prix d'entrée
             last_price = exchange.fetch_ticker(symbol)['last'] # recupère le dernier prix
