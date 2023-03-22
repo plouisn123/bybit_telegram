@@ -23,7 +23,7 @@ while True:
         ##Extraction et traitement des données
         text = message
         
-        if "TP :" in text and "SL :" in text and "Prix" in text and and exchange.fetch_balance()['USDT']['free'] > 3:
+        if "TP :" in text and "SL :" in text and "Prix" in text and exchange.fetch_balance()['USDT']['free'] > 3:
             
             #LONG or SHORT
             start = text.find("(")
