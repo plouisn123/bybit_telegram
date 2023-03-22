@@ -38,13 +38,12 @@ while True:
                 
             #Paire    
             start = text.find("")
-            end = text.find("(", start)
-            if start != -1 and end != -1:
-                crypto = text[start+1:end-1]
-                symbol = crypto+'USDT'
-                print('Paire:',symbol)
-                #print(type(symbol))
-                #print(type(crypto))
+            end = start + 1
+            while end < len(text) and (text[end].isalpha()):
+                end += 1
+            crypto = text[start+1:end]
+            symbol = crypto+'USDT'
+            print('Paire:',symbol)
 
             #Prix entrée n°1    
             start = text.find("entré")
