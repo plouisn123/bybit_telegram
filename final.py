@@ -225,7 +225,7 @@ while True:
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                 ftp = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                 fsl = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i]) 
-                print('222',fpe, ftp, fsl)
+                #print('222',fpe, ftp, fsl)
                 if paire_active != None:
                     if list(dico.keys())[i] not in paire_active:
                         if fpe == 'canceled' or 'closed':
@@ -259,7 +259,7 @@ while True:
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                 ftp = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                 fsl = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                print('111',fpe, ftp, fsl) 
+                #print('111',fpe, ftp, fsl) 
                 if paire_active != None:
                     if list(dico.keys())[i] not in  paire_active:
                         if (fpe == 'closed' or fpe == 'canceled') and (ftp == 'closed' or ftp =='canceled'): 
