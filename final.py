@@ -242,9 +242,9 @@ while True:
                             del dico[list(dico.keys())[i]]
                 else:
                     if fpe == 'canceled' or 'closed':
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
+                        exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
+                        exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
+                        del dico[list(dico.keys())[i]]
                     elif ftp == 'canceled' or 'closed':
                         exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                         exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
