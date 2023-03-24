@@ -170,11 +170,11 @@ while True:
                 if "." in size:
                     decimals = size.split(".")[1]
                     nb_decimals = decimals.count("0")
-                    quantity = round(levier/last_price,nb_decimals)
+                    quantity = round(2*levier/last_price,nb_decimals)
                     if quantity == 0:
                         quantity = 1/10**nb_decimals
                 else:
-                    quantity = round(levier/last_price)
+                    quantity = round(2*levier/last_price)
                 print('Quantity',quantity)
 
                 ## Ordres
