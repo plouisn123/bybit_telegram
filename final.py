@@ -1,10 +1,11 @@
 import requests
 import ccxt
+import time
 
-##Bybit V2 API
+##Telegram_bot
 exchange = ccxt.bybit({
     'apiKey': '6K7bCWUzpVU4kKhIK3',
-    'secret': 'SbNdPuiE0rNYH3TmdHWxsatXaseSOljB81EP', 
+    'secret': 'SbNdPuiE0rNYH3TmdHWxsatXaseSOljB81EP'
 })
 
 bot_token = '5704355843:AAHk0C4706h3Kn3X8KvF0ZQah-DmkqSB6o4'
@@ -24,9 +25,9 @@ while True:
             last_update_id = update["update_id"]
         else:
             text = ''
-
+        
         ##Extraction et traitement des données
-        if "TP :" in text and "SL :" in text and "Prix" in text and exchange.fetch_balance()['USDT']['free'] > 2:
+        if "TP :" in text and "SL :" in text and "Prix" in text and exchange.fetch_balance()['USDT']['free'] > 3:
             
             #LONG or SHORT
             start = text.find("(")
@@ -92,7 +93,7 @@ while True:
             while end < len(text) and (text[end].isdigit() or text[end] == ","):
                 end += 1
             SLL = text[start+5:end]
-            print('SLL:',SLL)
+            #print('SLL:',SLL)
             if ',' in SLL:
                 SL = float(SLL.replace(",", "."))
             else:
@@ -121,7 +122,7 @@ while True:
                 print('PE:',PE)
 
             #choix levier
-            lev_max = exchange.fetch_derivatives_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
+            lev_max = exchange.fetch_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
             if 0.1 < last_price < 100:
                 if lev_max < 20:
                     levier = lev_max
@@ -143,7 +144,8 @@ while True:
                 else:
                     levier = 35
             print('Levier',levier)
-
+            
+            levier = float(10)
             ##Passage des ordres
             if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPs', 'SL', 'levier']):
                 info_leviers=exchange.fetch_positions(symbol) #récupère le gros tas d'info sur la paire
@@ -165,33 +167,36 @@ while True:
                     else:
                         if levier != levier_short:
                             exchange.set_leverage(symbol=symbol, leverage=levier)
-                            
+                           
                 #calcul quantity
                 if "." in size:
                     decimals = size.split(".")[1]
                     nb_decimals = decimals.count("0")
-                    quantity = round(2*levier/last_price,nb_decimals)
+                    quantity = round(levier/last_price,nb_decimals)
                     if quantity == 0:
                         quantity = 1/10**nb_decimals
                 else:
-                    quantity = round(2*levier/last_price)
+                    quantity = round(levier/last_price)
                 print('Quantity',quantity)
-
+                
                 ## Ordres
-                #Entry
-                orderPE = exchange.create_order(symbol=symbol, type='Limit', side=BorS, amount=quantity, price=PE) 
+                #Entrer
+                orderPE = exchange.create_limit_order(symbol=symbol, side=BorS, amount=quantity, price=PE)
+    
                 #TP
-                orderTP = exchange.create_order(symbol=symbol, type='Limit', side=close, amount=quantity, price=TPs[2])                    
+                orderTP = exchange.create_order(symbol=symbol, type='limit', side=close, amount=quantity, price=TPs[2])                    
                 #SL
                 if BorS == 'Buy':
                     orderSL = exchange.create_limit_order(symbol=symbol, side=close, amount=quantity, price=SL, params={'stopLossPrice': SL}) #Close long
                 else:
                     orderSL = exchange.create_limit_buy_order(symbol=symbol, amount=quantity, price=SL, params = {'stopPrice': SL}) #Open long
-                
+        
                 #ajouter les ordres au dico
                 dico[symbol]=[]
                 dico[symbol].append(orderPE['id']), dico[symbol].append(orderTP['id']), dico[symbol].append(orderSL['id'])
-                
+
+                time.sleep(5)
+          
     ## Gestion des ordes 
     order_book = exchange.fetch_derivatives_open_orders() #liste des ordres à executer
     if len(order_book) != 0:
@@ -200,7 +205,6 @@ while True:
             symb.append(order_book[i]['info']['symbol']) #nom des paires de tous les ordres dans une liste
 
         # nombre d'ordres par paire
-
         dico_actif = {}
         for item in symb:
             if item in dico_actif:
@@ -212,7 +216,7 @@ while True:
 
         #récupération des paires de trades en cours
         trade_actif = exchange.fetch_derivatives_positions()
-        paire_active = None
+        paire_active = []
         if len(trade_actif) != 0:
             paire_active = []
             for i in range(len(trade_actif)):
@@ -224,63 +228,53 @@ while True:
                 #quel ordre est fermé ? 
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                 ftp = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                fsl = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i]) 
+                fsl = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                 #print('222',fpe, ftp, fsl)
-                if paire_active != None:
-                    if list(dico.keys())[i] not in paire_active:
-                        if fpe == 'canceled' or 'closed':
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
-                        elif ftp == 'canceled' or 'closed':
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
-                        elif fsl == 'canceled' or 'closed':
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
-                else:
-                    if fpe == 'canceled' or 'closed':
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
+                if list(dico.keys())[i] not in paire_active: #paire du dico des ordres pas dans les paires en cours de trade ? 
+                    if fpe != 'open':
+                        exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
+                        exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
-                    elif ftp == 'canceled' or 'closed':
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
+                        print(dico)
+                    elif ftp != 'open':
+                        exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
+                        exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
-                    elif fsl == 'canceled' or 'closed':
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
+                    elif fsl != 'open':
+                        exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
+                        exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
-                    
+                
             if liste_actif[i][1] == 1: # vérifier si le trade n'a pas été fermé ou liquidé quand 1 ordres sont ouverts
                 #quel ordre est fermé ? 
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                 ftp = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                 fsl = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                #print('111',fpe, ftp, fsl) 
-                if paire_active != None:
-                    if list(dico.keys())[i] not in  paire_active:
-                        if (fpe == 'closed' or fpe == 'canceled') and (ftp == 'closed' or ftp =='canceled'): 
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
-                        elif (fpe == 'closed' or fpe == 'canceled') and (fsl == 'closed' or fsl =='canceled'): 
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
-                        elif (fsl == 'closed' or fsl == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
-                            exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
-                            del dico[list(dico.keys())[i]]
-                else:
-                    if (fpe == 'closed' or fpe == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
-                        del dico[list(dico.keys())[i]]
-                    elif (fsl == 'closed' or fsl == 'canceled') and (fpe == 'closed' or fpe =='canceled'):
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
-                        del dico[list(dico.keys())[i]]
-                    elif (fsl == 'closed' or fsl == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
-                        exchange.cancel_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
-                        del dico[list(dico.keys())[i]]
-                    
-                    
-                    
+                #print('111',fpe, ftp, fsl)
+                if (fpe == 'closed' or fpe == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
+                    exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
+                    del dico[list(dico.keys())[i]]
+                elif (fsl == 'closed' or fsl == 'canceled') and (fpe == 'closed' or fpe =='canceled'):
+                    exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
+                    del dico[list(dico.keys())[i]]
+                elif (fsl == 'closed' or fsl == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
+                    exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
+                    del dico[list(dico.keys())[i]]
+        time.sleep(4)
+    
+    #print(dico)
+  
+
+
+
+    
+
+                
+                
+
+
+ 
+
+
+        
+            
