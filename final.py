@@ -145,7 +145,6 @@ while True:
                     levier = 35
             print('Levier',levier)
             
-            levier = float(10)
             ##Passage des ordres
             if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPs', 'SL', 'levier']):
                 info_leviers=exchange.fetch_positions(symbol) #récupère le gros tas d'info sur la paire
@@ -261,8 +260,6 @@ while True:
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
         time.sleep(4)
-    
-    #print(dico)
   
 
 
