@@ -114,10 +114,17 @@ while True:
                     PE = round(last_price*1.001,nb_decimals)
                     print('PE:',PE)
                     
-            if last_price > PE2:
+            if BorS == 'Buy' and last_price > PE2:
                 PE = PE2
                 print('PE:',PE)
-            if last_price < PE1:
+            else:
+                PE = last_price
+                print('PE:',PE)
+                
+            if BorS == 'Buy' and last_price < PE1:
+                PE = last_price
+                print('PE:',PE)
+            else:
                 PE = PE1
                 print('PE:',PE)
 
