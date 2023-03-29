@@ -118,14 +118,14 @@ while True:
                     PE = round(last_price*1.001,nb_decimals)
                     print('PE:',PE)
                     
-            if BorS == 'Buy' and last_price > PE2:
+            elif BorS == 'Buy' and last_price > PE2:
                 PE = PE2
                 print('PE:',PE)
             else:
                 PE = last_price
                 print('PE:',PE)
                 
-            if BorS == 'Buy' and last_price < PE1:
+            elif BorS == 'Buy' and last_price < PE1:
                 PE = last_price
                 print('PE:',PE)
             else:
@@ -139,17 +139,17 @@ while True:
                     levier = lev_max
                 else:
                     levier = 20
-            if last_price <= 0.1:
+            elif last_price <= 0.1:
                 if lev_max < 15:
                     levier = lev_max
                 else:
                     levier = 15
-            if 100 <= last_price < 500:
+            elif 100 <= last_price < 500:
                 if lev_max < 25:
                     levier = lev_max
                 else:
                     levier = 25
-            if last_price >= 500:
+            elif last_price >= 500:
                 if lev_max < 35:
                     levier = lev_max
                 else:
