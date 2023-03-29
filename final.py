@@ -118,19 +118,21 @@ while True:
                     PE = round(last_price*1.001,nb_decimals)
                     print('PE:',PE)
                     
-            elif BorS == 'Buy' and last_price > PE2:
-                PE = PE2
-                print('PE:',PE)
-            else:
-                PE = last_price
-                print('PE:',PE)
+            elif last_price > PE2:
+                if BorS == 'Buy':
+                    PE = PE2
+                    print('PE:',PE)
+                else:
+                    PE = last_price
+                    print('PE:',PE)
                 
-            elif BorS == 'Buy' and last_price < PE1:
-                PE = last_price
-                print('PE:',PE)
-            else:
-                PE = PE1
-                print('PE:',PE)
+            elif last_price < PE1:
+                if BorS == 'Buy':
+                    PE = last_price
+                    print('PE:',PE)
+                else:
+                    PE = PE1
+                    print('PE:',PE)
 
             #choix levier
             lev_max = exchange.fetch_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
