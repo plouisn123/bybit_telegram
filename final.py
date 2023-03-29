@@ -80,7 +80,7 @@ while True:
             if start != -1 and end != -1:
                 TP = text[start+6:end-3]        
                 TPs = TP.split("\n")
-                if ',' in TP[2]:
+                if ',' in TPs[2]:
                     TPs[2] = float(TPs[2].replace(",", "."))
                 else:
                     TPs[2] = float(TPs[2])
