@@ -269,7 +269,7 @@ while True:
                 elif (fsl == 'closed' or fsl == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
-        time.sleep(4)
+        time.sleep(5)
   
 
 
