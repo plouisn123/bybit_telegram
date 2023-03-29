@@ -106,6 +106,7 @@ while True:
                 
             #Prix d'entrée
             last_price = exchange.fetch_ticker(symbol)['last'] # recupère le dernier prix
+            print('last_price',last_price)
             nb_decimals = len(str(last_price)) - str(last_price).index('.') - 1
             index = str(last_price).find('.')
             if PE1 < last_price < PE2:
@@ -138,17 +139,17 @@ while True:
                     levier = lev_max
                 else:
                     levier = 20
-            elif last_price <= 0.1:
+            if last_price <= 0.1:
                 if lev_max < 15:
                     levier = lev_max
                 else:
                     levier = 15
-            elif 100 <= last_price < 500:
+            if 100 <= last_price < 500:
                 if lev_max < 25:
                     levier = lev_max
                 else:
                     levier = 25
-            elif last_price >= 500:
+            if last_price >= 500:
                 if lev_max < 35:
                     levier = lev_max
                 else:
