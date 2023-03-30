@@ -54,7 +54,9 @@ while True:
             #print(type(symbol))
             #print(type(crypto))
             
-            if symbol in exchange.fetch_markets() :
+            markets = exchange.fetch_markets()
+            symbolls = [market['symbol'] for market in markets if market['active']]
+            if any(crypto in symbolls for crypto in [f'{crypto}/USDT', f'{crypto}/BTC']):
                 #Prix entrée n°1    
                 start = text.find("entré")
                 end = text.find("-", start)
