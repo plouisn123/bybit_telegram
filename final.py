@@ -114,23 +114,28 @@ while True:
                 index = str(last_price).find('.')
                 if PE1 < last_price < PE2:
                     if index == -1: #est ce que le prix de la crypto à une virgule ?
-                        PE = round(last_price*1.001)                     
+                        PE = round(last_price*1.001)
+                        print('PE:',PE)
                     else:
                         nb_decimals = len(str(last_price)) - index - 1 
                         PE = round(last_price*1.001,nb_decimals)
+                        print('PE:',PE)
                 elif last_price > PE2:
                     if BorS == 'Buy':
                         PE = PE2
+                        print('PE:',PE)
                     else:
                         PE = last_price
+                        print('PE:',PE)
 
                 elif last_price < PE1:
                     if BorS == 'Buy':
                         PE = last_price
+                        print('PE:',PE)
                     else:
                         PE = PE1
-                print('PE:',PE)
-                
+                        print('PE:',PE)
+                        
                 #choix levier
                 lev_max = exchange.fetch_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
                 if 0.1 < last_price < 100:
