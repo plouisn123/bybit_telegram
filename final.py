@@ -53,161 +53,156 @@ while True:
             print('Paire:',symbol)
             #print(type(symbol))
             #print(type(crypto))
-
-            #Prix entrée n°1    
-            start = text.find("entré")
-            end = text.find("-", start)
-            if start != -1 and end != -1:
-                PE11 = text[start+8:end]
-                if ',' in PE11:
-                    PE1 = float(PE11.replace(",", "."))
-                else:
-                    PE1 = float(PE11)
-            #print(PE1)
-
-            #Prix d'entrée n°2  
-            start = text.find("-")
-            end = start + 2
-            while end < len(text) and (text[end].isdigit() or text[end] == ","):
-                end += 1
-            PE22 = text[start+1:end]
-            if ',' in PE22:
-                PE2 = float(PE22.replace(",", "."))
-            else:
-                PE2 = float(PE22)
-            #print('Prix Entrée 2:',PE2)
-
-            #TP n°i    
-            start = text.find("TP")
-            end = text.find(" SL", start)
-            if start != -1 and end != -1:
-                TP = text[start+6:end-3]        
-                TPs = TP.split("\n")
-                if ',' in TPs[2]:
-                    TPs[2] = float(TPs[2].replace(",", "."))
-                else:
-                    TPs[2] = float(TPs[2])
-                print('Take Profit:',TPs[2])
-                #print(type(TPs[2]))
-
-            #SL    
-            start = text.find("SL")
-            end = start + 6
-            while end < len(text) and (text[end].isdigit() or text[end] == ","):
-                end += 1
-            SLL = text[start+5:end]
-            #print('SLL:',SLL)
-            if ',' in SLL:
-                SL = float(SLL.replace(",", "."))
-            else:
-                SL = float(SLL)
-            print('StopLoss:',SL)
-            #print(type(SL))
-                
-            #Prix d'entrée
-            last_price = exchange.fetch_ticker(symbol)['last'] # recupère le dernier prix
-            print('last_price',last_price)
-            nb_decimals = len(str(last_price)) - str(last_price).index('.') - 1
-            index = str(last_price).find('.')
-            if PE1 < last_price < PE2:
-                if index == -1: #est ce que le prix de la crypto à une virgule ?
-                    PE = round(last_price*1.001)
-                    print('PE:',PE)
-                else:
-                    nb_decimals = len(str(last_price)) - index - 1 
-                    PE = round(last_price*1.001,nb_decimals)
-                    print('PE:',PE)
-                    
-            elif last_price > PE2:
-                if BorS == 'Buy':
-                    PE = PE2
-                    print('PE:',PE)
-                else:
-                    PE = last_price
-                    print('PE:',PE)
-                
-            elif last_price < PE1:
-                if BorS == 'Buy':
-                    PE = last_price
-                    print('PE:',PE)
-                else:
-                    PE = PE1
-                    print('PE:',PE)
-
-            #choix levier
-            lev_max = exchange.fetch_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
-            if 0.1 < last_price < 100:
-                if lev_max < 20:
-                    levier = lev_max
-                else:
-                    levier = 20
-            elif last_price <= 0.1:
-                if lev_max < 15:
-                    levier = lev_max
-                else:
-                    levier = 15
-            elif 100 <= last_price < 500:
-                if lev_max < 25:
-                    levier = lev_max
-                else:
-                    levier = 25
-            elif last_price >= 500:
-                if lev_max < 35:
-                    levier = lev_max
-                else:
-                    levier = 35
-            print('Levier',levier)
             
-            ##Passage des ordres
-            if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPs', 'SL', 'levier']):
-                info_leviers=exchange.fetch_positions(symbol) #récupère le gros tas d'info sur la paire
-                size = info_leviers[0]['info']['size'] #taille de l'ordre long en court (recuperer nb décimals)
-                #leviers
-                if len(info_leviers) == 1:
-                    levier_LS = info_leviers[0]['leverage']
-                else:
-                    levier_long = info_leviers[0]['leverage'] 
-                    levier_short = info_leviers[1]['leverage'] 
-                try: 
-                    if levier_LS not in globals():
-                        if levier != levier_LS:
-                            exchange.set_leverage(symbol=symbol, leverage=levier)
-                except: 
-                    if BorS == 'Buy':
-                        if levier != levier_long:
-                            exchange.set_leverage(symbol=symbol, leverage=levier)
+            if symbol in exchange.fetch_markets() :
+                #Prix entrée n°1    
+                start = text.find("entré")
+                end = text.find("-", start)
+                if start != -1 and end != -1:
+                    PE11 = text[start+8:end]
+                    if ',' in PE11:
+                        PE1 = float(PE11.replace(",", "."))
                     else:
-                        if levier != levier_short:
-                            exchange.set_leverage(symbol=symbol, leverage=levier)
-                           
-                #calcul quantity
-                if "." in size:
-                    decimals = size.split(".")[1]
-                    nb_decimals = decimals.count("0")
-                    quantity = round(2*levier/last_price,nb_decimals) #change USDT quantity
-                    if quantity == 0:
-                        quantity = 1/10**nb_decimals
-                else:
-                    quantity = round(2*levier/last_price) #change USDT quantity
-                print('Quantity',quantity)
-                
-                ## Ordres
-                #Entrer
-                orderPE = exchange.create_limit_order(symbol=symbol, side=BorS, amount=quantity, price=PE)
-    
-                #TP
-                orderTP = exchange.create_order(symbol=symbol, type='limit', side=close, amount=quantity, price=TPs[2])                    
-                #SL
-                if BorS == 'Buy':
-                    orderSL = exchange.create_limit_order(symbol=symbol, side=close, amount=quantity, price=SL, params={'stopLossPrice': SL}) #Close long
-                else:
-                    orderSL = exchange.create_limit_buy_order(symbol=symbol, amount=quantity, price=SL, params = {'stopPrice': SL}) #Open long
-        
-                #ajouter les ordres au dico
-                dico[symbol]=[]
-                dico[symbol].append(orderPE['id']), dico[symbol].append(orderTP['id']), dico[symbol].append(orderSL['id'])
+                        PE1 = float(PE11)
+                #print(PE1)
 
-                time.sleep(5)
+                #Prix d'entrée n°2  
+                start = text.find("-")
+                end = start + 2
+                while end < len(text) and (text[end].isdigit() or text[end] == ","):
+                    end += 1
+                PE22 = text[start+1:end]
+                if ',' in PE22:
+                    PE2 = float(PE22.replace(",", "."))
+                else:
+                    PE2 = float(PE22)
+                #print('Prix Entrée 2:',PE2)
+
+                #TP n°i    
+                start = text.find("TP")
+                end = text.find(" SL", start)
+                if start != -1 and end != -1:
+                    TP = text[start+6:end-3]        
+                    TPs = TP.split("\n")
+                    if ',' in TPs[2]:
+                        TPs[2] = float(TPs[2].replace(",", "."))
+                    else:
+                        TPs[2] = float(TPs[2])
+                    print('Take Profit:',TPs[2])
+                    #print(type(TPs[2]))
+
+                #SL    
+                start = text.find("SL")
+                end = start + 6
+                while end < len(text) and (text[end].isdigit() or text[end] == ","):
+                    end += 1
+                SLL = text[start+5:end]
+                #print('SLL:',SLL)
+                if ',' in SLL:
+                    SL = float(SLL.replace(",", "."))
+                else:
+                    SL = float(SLL)
+                print('StopLoss:',SL)
+                #print(type(SL))
+
+                #Prix d'entrée
+                last_price = exchange.fetch_ticker(symbol)['last'] # recupère le dernier prix
+                print('last_price',last_price)
+                nb_decimals = len(str(last_price)) - str(last_price).index('.') - 1
+                index = str(last_price).find('.')
+                if PE1 < last_price < PE2:
+                    if index == -1: #est ce que le prix de la crypto à une virgule ?
+                        PE = round(last_price*1.001)                     
+                    else:
+                        nb_decimals = len(str(last_price)) - index - 1 
+                        PE = round(last_price*1.001,nb_decimals)
+                elif last_price > PE2:
+                    if BorS == 'Buy':
+                        PE = PE2
+                    else:
+                        PE = last_price
+
+                elif last_price < PE1:
+                    if BorS == 'Buy':
+                        PE = last_price
+                    else:
+                        PE = PE1
+                print('PE:',PE)
+                
+                #choix levier
+                lev_max = exchange.fetch_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
+                if 0.1 < last_price < 100:
+                    if lev_max < 20:
+                        levier = lev_max
+                    else:
+                        levier = 20
+                elif last_price <= 0.1:
+                    if lev_max < 15:
+                        levier = lev_max
+                    else:
+                        levier = 15
+                elif 100 <= last_price < 500:
+                    if lev_max < 25:
+                        levier = lev_max
+                    else:
+                        levier = 25
+                elif last_price >= 500:
+                    if lev_max < 35:
+                        levier = lev_max
+                    else:
+                        levier = 35
+                print('Levier',levier)
+
+                ##Passage des ordres
+                if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPs', 'SL', 'levier']):
+                    info_leviers=exchange.fetch_positions(symbol) #récupère le gros tas d'info sur la paire
+                    size = info_leviers[0]['info']['size'] #taille de l'ordre long en court (recuperer nb décimals)
+                    #leviers
+                    if len(info_leviers) == 1:
+                        levier_LS = info_leviers[0]['leverage']
+                    else:
+                        levier_long = info_leviers[0]['leverage'] 
+                        levier_short = info_leviers[1]['leverage'] 
+                    try: 
+                        if levier_LS not in globals():
+                            if levier != levier_LS:
+                                exchange.set_leverage(symbol=symbol, leverage=levier)
+                    except: 
+                        if BorS == 'Buy':
+                            if levier != levier_long:
+                                exchange.set_leverage(symbol=symbol, leverage=levier)
+                        else:
+                            if levier != levier_short:
+                                exchange.set_leverage(symbol=symbol, leverage=levier)
+
+                    #calcul quantity
+                    if "." in size:
+                        decimals = size.split(".")[1]
+                        nb_decimals = decimals.count("0")
+                        quantity = round(2*levier/last_price,nb_decimals) #change USDT quantity
+                        if quantity == 0:
+                            quantity = 1/10**nb_decimals
+                    else:
+                        quantity = round(2*levier/last_price) #change USDT quantity
+                    print('Quantity',quantity)
+
+                    ## Ordres
+                    #Entrer
+                    orderPE = exchange.create_limit_order(symbol=symbol, side=BorS, amount=quantity, price=PE)
+
+                    #TP
+                    orderTP = exchange.create_order(symbol=symbol, type='limit', side=close, amount=quantity, price=TPs[2])                    
+                    #SL
+                    if BorS == 'Buy':
+                        orderSL = exchange.create_limit_order(symbol=symbol, side=close, amount=quantity, price=SL, params={'stopLossPrice': SL}) #Close long
+                    else:
+                        orderSL = exchange.create_limit_buy_order(symbol=symbol, amount=quantity, price=SL, params = {'stopPrice': SL}) #Open long
+
+                    #ajouter les ordres au dico
+                    dico[symbol]=[]
+                    dico[symbol].append(orderPE['id']), dico[symbol].append(orderTP['id']), dico[symbol].append(orderSL['id'])
+
+                    time.sleep(5)
           
     ## Gestion des ordes 
     order_book = exchange.fetch_derivatives_open_orders() #liste des ordres à executer
