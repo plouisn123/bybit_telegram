@@ -54,9 +54,9 @@ while True:
             #print(type(symbol))
             #print(type(crypto))
             
-            markets = exchange.fetch_markets()
-            symbolls = [market['symbol'] for market in markets if market['active']]
-            if any(crypto in symbolls for crypto in [f'{crypto}/USDT', f'{crypto}/BTC']):
+            markets = exchange.fetch_derivatives_markets(params={'category':'linear', "contractType": "LinearPerpetual", 'status': 'Trading'})
+            symbols = [market['symbol'] for market in markets]
+            if any(crypto in symbols for crypto in [f'{crypto}/USDT:USDT']):
                 #Prix entrée n°1    
                 start = text.find("entré")
                 end = text.find("-", start)
@@ -66,7 +66,7 @@ while True:
                         PE1 = float(PE11.replace(",", "."))
                     else:
                         PE1 = float(PE11)
-                #print(PE1)
+                print('Prix Entrée 1:',PE1)
 
                 #Prix d'entrée n°2  
                 start = text.find("-")
@@ -78,7 +78,7 @@ while True:
                     PE2 = float(PE22.replace(",", "."))
                 else:
                     PE2 = float(PE22)
-                #print('Prix Entrée 2:',PE2)
+                print('Prix Entrée 2:',PE2)
 
                 #TP n°i    
                 start = text.find("TP")
@@ -246,15 +246,17 @@ while True:
                 #print('222',fpe, ftp, fsl)
                 if list(dico.keys())[i] not in paire_active: #paire du dico des ordres pas dans les paires en cours de trade ? 
                     if fpe != 'open':
+                        print(dico)
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
-                        print(dico)
                     elif ftp != 'open':
+                        print(dico)
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
                     elif fsl != 'open':
+                        print(dico)
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
@@ -266,12 +268,15 @@ while True:
                 fsl = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                 #print('111',fpe, ftp, fsl)
                 if (fpe == 'closed' or fpe == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
+                    print(dico)
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
                 elif (fsl == 'closed' or fsl == 'canceled') and (fpe == 'closed' or fpe =='canceled'):
+                    print(dico)
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
                 elif (fsl == 'closed' or fsl == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
+                    print(dico)
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
         time.sleep(5)
