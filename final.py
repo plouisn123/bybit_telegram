@@ -243,7 +243,15 @@ while True:
         
         # cloture des trades inutiles + suppression ID dans le dico
         for i in range(len(dico)):
-            if liste_actif[i][1] == 2: # vérifier si le trade n'a pas été fermé ou liquidé quand 2 ordres sont ouverts
+            ppaire = list(dico.keys())[i] #Nom de la paire
+            #print('Paire',ppaire)
+            pos_ppaire = None
+            for j, (t, q) in enumerate(liste_actif):
+                if t == ppaire:
+                    pos_ppaire = j
+                    break
+            print('position paire', pos_ppaire)
+            if liste_actif[pos_ppaire][1] == 2: # vérifier si le trade n'a pas été fermé ou liquidé quand 2 ordres sont ouverts
                 #quel ordre est fermé ? 
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                 ftp = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
@@ -269,7 +277,7 @@ while True:
                         del dico[list(dico.keys())[i]]
                         print('dico:',dico)
                 
-            if liste_actif[i][1] == 1: # vérifier si le trade n'a pas été fermé ou liquidé quand 1 ordres sont ouverts
+            elif liste_actif[i][1] == 1: # vérifier si le trade n'a pas été fermé ou liquidé quand 1 ordres sont ouverts
                 #quel ordre est fermé ? 
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                 ftp = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
