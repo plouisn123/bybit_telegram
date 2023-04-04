@@ -86,12 +86,17 @@ while True:
                 if start != -1 and end != -1:
                     TP = text[start+6:end-3]        
                     TPs = TP.split("\n")
-                    if ',' in TPs[2]:
-                        TPs[2] = float(TPs[2].replace(",", "."))
-                    else:
-                        TPs[2] = float(TPs[2])
-                    print('Take Profit:',TPs[2])
-                    #print(type(TPs[2]))
+                    print('TP[i]:',TPs)
+                    for i in range(1,len(TPs)):
+                        if ',' in TPs[i]:
+                            TPs[i] = float(TPs[i].replace(",", "."))
+                        else:
+                            TPs[i] = float(TPs[i])
+                    if len(TPs) >=3:
+                        TPss = TPs[2]
+                    if len(TPs) == 2:
+                        TPss = TPs[1]   
+                    print('Take Profit:',TPss)
 
                 #SL    
                 start = text.find("SL")
@@ -161,7 +166,7 @@ while True:
                 print('Levier',levier)
 
                 ##Passage des ordres
-                if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPs', 'SL', 'levier']):
+                if all(var in globals() for var in ['BorS', 'PE', 'close', 'TPss', 'SL', 'levier']):
                     info_leviers=exchange.fetch_positions(symbol) #récupère le gros tas d'info sur la paire
                     size = info_leviers[0]['info']['size'] #taille de l'ordre long en court (recuperer nb décimals)
                     #leviers
@@ -198,7 +203,7 @@ while True:
                     orderPE = exchange.create_limit_order(symbol=symbol, side=BorS, amount=quantity, price=PE)
 
                     #TP
-                    orderTP = exchange.create_order(symbol=symbol, type='limit', side=close, amount=quantity, price=TPs[2])                    
+                    orderTP = exchange.create_order(symbol=symbol, type='limit', side=close, amount=quantity, price=TPss)                    
                     #SL
                     if BorS == 'Buy':
                         orderSL = exchange.create_limit_order(symbol=symbol, side=close, amount=quantity, price=SL, params={'stopLossPrice': SL}) #Close long
