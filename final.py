@@ -144,15 +144,15 @@ while True:
                 #choix levier
                 lev_max = exchange.fetch_market_leverage_tiers(symbol)[0]['maxLeverage'] #levier maximum
                 if 0.1 < last_price < 100:
-                    if lev_max < 20:
-                        levier = lev_max
-                    else:
-                        levier = 20
-                elif last_price <= 0.1:
                     if lev_max < 15:
                         levier = lev_max
                     else:
                         levier = 15
+                elif last_price <= 0.1:
+                    if lev_max < 10:
+                        levier = lev_max
+                    else:
+                        levier = 10
                 elif 100 <= last_price < 500:
                     if lev_max < 25:
                         levier = lev_max
