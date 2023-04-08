@@ -250,7 +250,7 @@ while True:
                 if t == ppaire:
                     pos_ppaire = j
                     break
-            print('position paire', pos_ppaire)
+            #print('position paire', pos_ppaire)
             if liste_actif[pos_ppaire][1] == 2: # vérifier si le trade n'a pas été fermé ou liquidé quand 2 ordres sont ouverts
                 #quel ordre est fermé ? 
                 fpe = exchange.fetch_order_status(id = dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
