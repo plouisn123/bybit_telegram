@@ -264,18 +264,21 @@ while True:
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
                         print('dico:',dico)
+                        break
                     elif ftp != 'open':
                         print('TP closed',dico)
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
                         print('dico:',dico)
+                        break
                     elif fsl != 'open':
                         print('SL closed',dico)
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                         exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                         del dico[list(dico.keys())[i]]
                         print('dico:',dico)
+                        break
                 
             elif liste_actif[i][1] == 1: # vérifier si le trade n'a pas été fermé ou liquidé quand 1 ordres sont ouverts
                 #quel ordre est fermé ? 
@@ -288,16 +291,19 @@ while True:
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][2], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
                     print('dico:',dico)
+                    break
                 elif (fsl == 'closed' or fsl == 'canceled') and (fpe == 'closed' or fpe =='canceled'):
                     print('SL & PE closed',dico)
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][1], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
                     print('dico:',dico)
+                    break
                 elif (fsl == 'closed' or fsl == 'canceled') and (ftp == 'closed' or ftp =='canceled'):
                     print('SL & TP closed',dico)
                     exchange.cancel_derivatives_order(id= dico[list(dico.keys())[i]][0], symbol=list(dico.keys())[i])
                     del dico[list(dico.keys())[i]]
                     print('dico:',dico)
+                    break
         time.sleep(5)
   
 
