@@ -158,7 +158,7 @@ while True:
                         levier = lev_max
                     else:
                         levier = 20
-                elif 250 <= last_price < 5000
+                elif 250 <= last_price < 5000:
                     if lev_max < 25:
                         levier = lev_max
                     else:
