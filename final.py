@@ -91,7 +91,8 @@ while True:
                         if ',' in TPs[i]:
                             TPs[i] = float(TPs[i].replace(",", "."))
                         else:
-                            TPs[i] = float(TPs[i])
+                            if TPs[i] != '':
+                                TPs[i] = float(TPs[i])
                     if len(TPs) >=3:
                         TPss = TPs[2]
                     if len(TPs) == 2:
@@ -310,9 +311,6 @@ while True:
                     print('dico:',dico)
                     break
         time.sleep(5)
-  
-
-
 
     
 
