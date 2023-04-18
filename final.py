@@ -199,9 +199,9 @@ while True:
                         nb_decimals = decimals.count("0")
                         quantity = round(14*levier/last_price,nb_decimals) #change USDT quantity
                         if quantity == 0:
-                            quantity = 1/14**nb_decimals
+                            quantity = 1/10**nb_decimals
                     else:
-                        quantity = round(10*levier/last_price) #change USDT quantity
+                        quantity = round(14*levier/last_price) #change USDT quantity
                     print('Quantity',quantity)
 
                     ## Ordres
